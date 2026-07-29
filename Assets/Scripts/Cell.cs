@@ -24,11 +24,5 @@ public class Cell : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(transform.position, Vector3.one);
-
-        if (stackAnchor != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(stackAnchor.position, 0.1f);
-        }
     }
 }

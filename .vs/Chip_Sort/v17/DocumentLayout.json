@@ -3,24 +3,28 @@
   "WorkspaceRootPath": "D:\\game\\Chip_Sort\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|d:\\game\\chip_sort\\assets\\scripts\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chipstack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chipstack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chip.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chip.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\board.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\board.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|d:\\game\\chip_sort\\assets\\scripts\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\stackmerger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\stackmerger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|d:\\game\\chip_sort\\assets\\scripts\\stackdrag.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\stackdrag.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chipstack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chipstack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chipcolor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -29,6 +33,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chipspawner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chipspawner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|D:\\game\\Chip_Sort\\assets\\scripts\\chip.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F107362-1431-2E09-1FEA-0770DFA0C81A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chip.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,8 +46,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "StackMerger.cs",
+              "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\StackMerger.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\StackMerger.cs",
+              "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\StackMerger.cs",
+              "RelativeToolTip": "Assets\\Scripts\\StackMerger.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T09:07:43.376Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "StackDrag.cs",
+              "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\StackDrag.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\StackDrag.cs",
+              "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\StackDrag.cs",
+              "RelativeToolTip": "Assets\\Scripts\\StackDrag.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAQwEEAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T09:07:15.887Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 4,
@@ -48,66 +82,66 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\Cell.cs",
               "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\Cell.cs",
               "RelativeToolTip": "Assets\\Scripts\\Cell.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACEAAAABAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T10:12:28.742Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "Board.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\Board.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Board.cs",
               "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\Board.cs",
               "RelativeToolTip": "Assets\\Scripts\\Board.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAABAAAA",
+              "ViewState": "AQIAAAoAAAAAAAAAAADwvzEAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T08:56:36.448Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "BoardGenerator.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\BoardGenerator.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BoardGenerator.cs",
               "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\BoardGenerator.cs",
               "RelativeToolTip": "Assets\\Scripts\\BoardGenerator.cs",
-              "ViewState": "AQIAAB0AAAAAAAAAAAASwDQAAAAUAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABkAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T08:43:35.697Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "ChipStack.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\ChipStack.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ChipStack.cs",
               "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\ChipStack.cs",
               "RelativeToolTip": "Assets\\Scripts\\ChipStack.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACkAAAABAAAA",
+              "ViewState": "AQIAABEAAAAAAAAAAAAuwDoAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T08:43:06.221Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "ChipColor.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\ChipColor.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ChipColor.cs",
               "ToolTip": "D:\\game\\Chip_Sort\\Assets\\Scripts\\ChipColor.cs",
               "RelativeToolTip": "Assets\\Scripts\\ChipColor.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAkAAAABAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T08:04:36.09Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "ChipSpawner.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\ChipSpawner.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ChipSpawner.cs",
@@ -115,11 +149,12 @@
               "RelativeToolTip": "Assets\\Scripts\\ChipSpawner.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAACcAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-23T08:29:11.394Z"
+              "WhenOpened": "2026-07-23T08:29:11.394Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
               "Title": "Chip.cs",
               "DocumentMoniker": "D:\\game\\Chip_Sort\\Assets\\Scripts\\Chip.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chip.cs",

@@ -3457,51 +3457,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cell
   stackAnchor: {fileID: 904755627}
---- !u!1 &1220719207
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1220719209}
-  - component: {fileID: 1220719208}
-  m_Layer: 0
-  m_Name: ChipStack
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1220719208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1220719207}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 150754ec1e802d041a6a1f3ba21eff94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChipStack
-  chipOffset: 0.15
---- !u!4 &1220719209
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1220719207}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.60059, y: -0.25975, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1227077898
 GameObject:
   m_ObjectHideFlags: 0
@@ -3802,7 +3757,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardGenerator
   board: {fileID: 810373559}
-  stackPrefab: {fileID: 1220719208}
+  stackPrefab: {fileID: 3095160404182964775, guid: bdb85816353637a43b48c611ccb753ee, type: 3}
   chipPrefab: {fileID: 5958482708676662185, guid: a923d343eb210c94fadac322c2eba95f, type: 3}
   minChipPerStack: 1
   maxChipPerStack: 4
@@ -4711,4 +4666,3 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 810373560}
   - {fileID: 1259662490}
-  - {fileID: 1220719209}

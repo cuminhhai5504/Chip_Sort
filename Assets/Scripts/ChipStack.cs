@@ -39,4 +39,21 @@ public class ChipStack : MonoBehaviour
 
         return chips[chips.Count - 1];
     }
+    public List<Chip> GetAllChips()
+    {
+        return new List<Chip>(chips);
+    }
+
+    public int Count => chips.Count;
+
+    public void Clear()
+    {
+        chips.Clear();
+    }
+    public Cell CurrentCell { get; private set; }
+
+    public void SetCell(Cell cell)
+    {
+        CurrentCell = cell;
+    }
 }

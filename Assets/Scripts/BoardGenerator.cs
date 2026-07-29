@@ -33,6 +33,7 @@ public class BoardGenerator : MonoBehaviour
             Quaternion.identity);
 
         cell.SetStack(stack);
+        stack.SetCell(cell);
 
         int chipCount =
             UnityEngine.Random.Range(
