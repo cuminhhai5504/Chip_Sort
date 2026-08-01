@@ -56,4 +56,26 @@ public class ChipStack : MonoBehaviour
     {
         CurrentCell = cell;
     }
+    #region Add Core Mechanic
+    public bool IsFull()
+    {
+        return chips.Count >= 5;
+    }
+    public void BreakStack()
+    {
+        foreach (Chip chip in chips)
+        {
+            chip.Release();
+        }
+
+        chips.Clear();
+
+        if (CurrentCell != null)
+        {
+            CurrentCell.ClearStack();
+        }
+
+        Destroy(gameObject);
+    }
+    #endregion
 }

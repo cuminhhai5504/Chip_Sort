@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3095160404182964775}
   - component: {fileID: 8920971035319992374}
   - component: {fileID: 7086787949797862482}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ChipStack
   m_TagString: Untagged
   m_Icon: {fileID: 0}

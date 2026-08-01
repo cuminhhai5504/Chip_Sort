@@ -3,7 +3,7 @@ using UnityEngine;
 public class Chip : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer chipRenderer;
-
+    [SerializeField] private Rigidbody2D rb;
     public ChipColor ColorType { get; private set; }
 
     public void Setup(ChipColor colorType)
@@ -27,4 +27,21 @@ public class Chip : MonoBehaviour
     {
         chipRenderer.sortingOrder = order;
     }
+    #region Add Core Mechanic
+    public void Release()
+    {
+        gameObject.layer =
+            LayerMask.NameToLayer("ReleasedChip");
+
+        transform.SetParent(null);
+
+        rb.simulated = true;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+
+        rb.linearVelocity =
+            new Vector2(
+                Random.Range(-1f, 1f),
+                Random.Range(2f, 4f));
+    }
+    #endregion
 }

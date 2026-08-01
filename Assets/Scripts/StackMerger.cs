@@ -18,5 +18,11 @@ public static class StackMerger
         source.Clear();
 
         Object.Destroy(source.gameObject);
+        #region Add Core Mechanic
+        if (target.IsFull())
+        {
+            target.BreakStack();
+        }
+        #endregion
     }
 }

@@ -17,7 +17,7 @@ public class StackDrag : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        Debug.Log("Down");
+        
         startPosition = transform.position;
 
         dragging = true;
@@ -25,7 +25,7 @@ public class StackDrag : MonoBehaviour
 
     private void OnMouseUp()
     {
-        Debug.Log("Up");
+        
         dragging = false;
 
         TryDrop();
@@ -65,29 +65,14 @@ public class StackDrag : MonoBehaviour
 
         if (targetCell.IsEmpty)
         {
-            MoveToEmptyCell(targetCell);
+            ReturnToStart();
+            return;
         }
-        else
-        {
-            MergeIntoCell(targetCell);
-        }
+
+        MergeIntoCell(targetCell);
     }
 
-    private void MergeInto(ChipStack target)
-    {
-        StackMerger.Merge(stack, target);
-    }
-    private void MoveToEmptyCell(Cell targetCell)
-    {
-        stack.CurrentCell.ClearStack();
-
-        targetCell.SetStack(stack);
-
-        stack.SetCell(targetCell);
-
-        transform.position =
-            targetCell.StackAnchor.position;
-    }
+    
     private void MergeIntoCell(Cell targetCell)
     {
         ChipStack targetStack =
