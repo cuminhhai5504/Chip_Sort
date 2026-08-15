@@ -17,7 +17,9 @@ public class StackDrag : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        
+        if (Board.Instance == null || !Board.Instance.IsPlaying)
+            return;
+
         startPosition = transform.position;
 
         dragging = true;
@@ -25,7 +27,9 @@ public class StackDrag : MonoBehaviour
 
     private void OnMouseUp()
     {
-        
+        if (!dragging)
+            return;
+
         dragging = false;
 
         TryDrop();
@@ -78,9 +82,12 @@ public class StackDrag : MonoBehaviour
         ChipStack targetStack =
             targetCell.CurrentStack;
 
+        Cell sourceCell = stack.CurrentCell;
+
         StackMerger.Merge(stack, targetStack);
 
-        stack.CurrentCell.ClearStack();
+        sourceCell.ClearStack();
+        Board.Instance.CheckLoseCondition();
     }
     private void ReturnToStart()
     {
