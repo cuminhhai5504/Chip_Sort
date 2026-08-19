@@ -69,8 +69,9 @@ public class BoardGenerator : MonoBehaviour
         {
             Debug.LogError(
                 $"Missing stack CSV at Resources/{resourcePath}.csv. " +
-                $"Use {BoardColumnCount} columns and write each stack " +
-                "bottom-to-top, for example 1|3|2.",
+                $"Use {BoardColumnCount} stacks separated by ';' per row " +
+                "and write each stack bottom-to-top, for example " +
+                "1,3,2,5;2,4;7;1,6,3;5,2,4.",
                 this);
             return false;
         }
@@ -98,8 +99,7 @@ public class BoardGenerator : MonoBehaviour
                 return false;
             }
 
-            char separator = rowText.Contains(";") ? ';' : ',';
-            string[] cells = rowText.Split(separator);
+            string[] cells = rowText.Split(';');
             if (cells.Length > BoardColumnCount)
             {
                 Debug.LogError(
@@ -124,19 +124,19 @@ public class BoardGenerator : MonoBehaviour
                     Debug.LogError(
                         $"Empty stack at {resourcePath}.csv row " +
                         $"{boardRow + 1}, column {column + 1}. " +
-                        "Every stack must contain 1 to 5 chips.",
+                        "Every stack must contain 1 to 4 chips.",
                         this);
                     return false;
                 }
 
-                string[] chipValues = stackText.Split('|');
-                if (chipValues.Length < 1 || chipValues.Length > 5)
+                string[] chipValues = stackText.Split(',');
+                if (chipValues.Length < 1 || chipValues.Length > 4)
                 {
                     Debug.LogError(
                         $"Stack at {resourcePath}.csv row " +
                         $"{boardRow + 1}, column {column + 1} contains " +
                         $"{chipValues.Length} chips. Each stack must " +
-                        "contain 1 to 5 chips.",
+                        "contain 1 to 4 chips.",
                         this);
                     return false;
                 }

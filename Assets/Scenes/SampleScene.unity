@@ -4632,8 +4632,6 @@ MonoBehaviour:
   board: {fileID: 810373559}
   stackPrefab: {fileID: 3095160404182964775, guid: bdb85816353637a43b48c611ccb753ee, type: 3}
   chipPrefab: {fileID: 5958482708676662185, guid: a923d343eb210c94fadac322c2eba95f, type: 3}
-  minChipPerStack: 1
-  maxChipPerStack: 4
 --- !u!4 &1259662490
 Transform:
   m_ObjectHideFlags: 0

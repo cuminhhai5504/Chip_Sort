@@ -5,7 +5,8 @@ public static class StackMerger
 {
     public static void Merge(
         ChipStack source,
-        ChipStack target)
+        ChipStack target,
+        Vector2 mergeDirection)
     {
         List<Chip> chips =
             source.GetAllChips();
@@ -21,7 +22,7 @@ public static class StackMerger
         #region Add Core Mechanic
         if (target.IsFull())
         {
-            target.BreakStack();
+            target.BreakStack(mergeDirection);
         }
         #endregion
     }

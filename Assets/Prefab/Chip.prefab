@@ -107,6 +107,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Chip
   chipRenderer: {fileID: 7845504842588760380}
   rb: {fileID: 5988702693805134078}
+  releaseSpeedMin: 2
+  releaseSpeedMax: 4
+  releaseSpread: 0.8
 --- !u!50 &5988702693805134078
 Rigidbody2D:
   serializedVersion: 5

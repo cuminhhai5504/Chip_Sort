@@ -14,14 +14,26 @@ public class ChipMachineSystem : MonoBehaviour
     private const string CurrentLevelKey = "CurrentLevel";
     private const int TrayCount = 5;
     private const int TrayCapacity = 5;
+    private const int DisplaySlotCount = 6;
+    private const int DisplaySlotCapacity = 4;
 
     [Header("Output timing")]
     [SerializeField, Min(0f)] private float firstDispenseDelay = 0.5f;
     [SerializeField, Min(0.05f)] private float dispenseInterval = 0.15f;
 
     [Header("Collection capacity")]
-    [SerializeField, Min(1)] private int defaultMaxWaitingChips = 10;
+    [SerializeField, Min(1)] private int defaultMaxWaitingChips = 24;
     [SerializeField, Min(0.02f)] private float collectionGateHeight = 0.1f;
+
+    [Header("Buffer display")]
+    [SerializeField, Min(0.1f)] private float displayCellHeight = 0.5f;
+    [SerializeField, Min(0f)] private float displayCellSpacing = 0.04f;
+    [SerializeField, Min(0f)] private float displayHorizontalMargin;
+    [SerializeField] private Vector2 displayPositionOffset =
+        new Vector2(0f, 0.25f);
+    [SerializeField, Min(1f)] private float displayCountFontSize = 4f;
+    [SerializeField, Range(0f, 1f)] private float displayCountOutlineWidth =
+        0.25f;
 
     [Header("Output motion")]
     [SerializeField] private float outputOffset = 0.2f;
@@ -40,11 +52,15 @@ public class ChipMachineSystem : MonoBehaviour
     [SerializeField, Min(0f)] private float fullTrayDisappearDelay = 0.15f;
 
     private readonly List<Chip> storedChips = new();
+    private readonly List<Chip> waitingChips = new();
     private readonly List<TrayColumn> trayColumns = new();
+    private readonly List<BufferDisplaySlot> displaySlots = new();
 
     private Transform fillMachine;
     private GameObject trayContainer;
-    private TMP_Text counterText;
+    private GameObject displayContainer;
+    private Texture2D displayTexture;
+    private Sprite displaySprite;
     private BoxCollider2D collectionGate;
     private Coroutine dispenseRoutine;
     private bool initialized;
@@ -95,7 +111,9 @@ public class ChipMachineSystem : MonoBehaviour
 
         initialized = true;
         fillMachine = fillObject.transform;
-        maxWaitingChips = LoadMaxWaitingChips();
+        maxWaitingChips = Mathf.Min(
+            LoadMaxWaitingChips(),
+            DisplaySlotCount * DisplaySlotCapacity);
 
         BoxCollider2D trigger = collectObject.GetComponent<BoxCollider2D>();
         if (trigger == null)
@@ -106,45 +124,81 @@ public class ChipMachineSystem : MonoBehaviour
         CreateCollectionGate(collectObject, trigger);
 
         CreateTrays();
-        CreateCounter();
-        RefreshCounter();
+        CreateBufferDisplay();
+        RefreshBufferDisplay();
         RefreshCollectionGate();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Chip chip = other.GetComponentInParent<Chip>();
-
-        if (chip == null)
-            return;
-
-        if (StoredCount >= maxWaitingChips)
-            return;
-
-        CollectChip(chip);
+        TryCollectOrQueue(other);
     }
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (StoredCount >= maxWaitingChips)
-            return;
-
-        Chip chip = other.GetComponentInParent<Chip>();
-        if (chip != null)
-            CollectChip(chip);
+        TryCollectOrQueue(other);
     }
 
-    private void CollectChip(Chip chip)
+    private void OnTriggerExit2D(Collider2D other)
     {
-        if (!chip.TryCollect())
+        Chip chip = other.GetComponentInParent<Chip>();
+        if (chip != null)
+            waitingChips.Remove(chip);
+    }
+
+    private void TryCollectOrQueue(Collider2D other)
+    {
+        Chip chip = other.GetComponentInParent<Chip>();
+        if (chip == null || chip.IsInsideMachine)
             return;
 
+        if (StoredCount < maxWaitingChips && CollectChip(chip))
+        {
+            waitingChips.Remove(chip);
+            return;
+        }
+
+        if (!waitingChips.Contains(chip))
+            waitingChips.Add(chip);
+    }
+
+    private bool CollectChip(Chip chip)
+    {
+        BufferDisplaySlot displaySlot = FindDisplaySlot(chip.ColorType);
+        if (displaySlot == null)
+            return false;
+
+        if (!chip.TryCollect())
+            return false;
+
         storedChips.Add(chip);
-        RefreshCounter();
+        displaySlot.Add(chip);
+        RefreshBufferDisplay();
         RefreshCollectionGate();
 
         if (dispenseRoutine == null)
             dispenseRoutine = StartCoroutine(DispenseChips());
+
+        return true;
+    }
+
+    private void RetryWaitingChips()
+    {
+        for (int i = waitingChips.Count - 1; i >= 0; i--)
+        {
+            Chip chip = waitingChips[i];
+            if (chip == null || chip.IsInsideMachine)
+            {
+                waitingChips.RemoveAt(i);
+                continue;
+            }
+
+            if (StoredCount >= maxWaitingChips)
+                continue;
+
+            if (CollectChip(chip))
+                waitingChips.RemoveAt(i);
+        }
     }
 
     private void CreateCollectionGate(
@@ -160,17 +214,20 @@ public class ChipMachineSystem : MonoBehaviour
         collectionGate.size = new Vector2(
             trigger.size.x,
             collectionGateHeight);
+        // Keep a trigger area above the solid gate. This lets the machine
+        // inspect the chip before the gate either accepts or blocks it.
         collectionGate.offset = new Vector2(
             trigger.offset.x,
             trigger.offset.y
                 + trigger.size.y * 0.5f
-                + collectionGateHeight * 0.5f);
+                - collectionGateHeight * 1.5f);
+        collectionGate.enabled = true;
     }
 
     private void RefreshCollectionGate()
     {
         if (collectionGate != null)
-            collectionGate.enabled = StoredCount >= maxWaitingChips;
+            collectionGate.enabled = true;
     }
 
     private int LoadMaxWaitingChips()
@@ -253,7 +310,6 @@ public class ChipMachineSystem : MonoBehaviour
             Vector3 slotPosition = tray.GetSlotPosition(slotIndex, trayChipSpacing);
             slotPosition += Vector3.up * trayChipVerticalOffset;
             chip.PlaceInTray(outputPosition, 100 + slotIndex * 2);
-            RefreshCounter();
 
             yield return MoveChipToSlot(chip, outputPosition, slotPosition);
 
@@ -282,7 +338,10 @@ public class ChipMachineSystem : MonoBehaviour
                 continue;
 
             storedChips.RemoveAt(i);
+            RemoveChipFromDisplay(candidate);
+            RefreshBufferDisplay();
             RefreshCollectionGate();
+            RetryWaitingChips();
             chip = candidate;
             slotIndex = tray.ReserveSlot();
             return true;
@@ -596,43 +655,219 @@ public class ChipMachineSystem : MonoBehaviour
         return trayObject;
     }
 
-    private void CreateCounter()
+    private BufferDisplaySlot FindDisplaySlot(ChipColor color)
     {
-        GameObject counterObject = new GameObject(
-            "ChipMachineCounter",
-            typeof(RectTransform),
-            typeof(TextMeshPro));
+        for (int i = 0; i < displaySlots.Count; i++)
+        {
+            BufferDisplaySlot slot = displaySlots[i];
+            if (slot.CanAccept(color))
+                return slot;
+        }
 
-        RectTransform rect = counterObject.GetComponent<RectTransform>();
-        rect.position = (transform.position + fillMachine.position) * 0.5f;
-        rect.sizeDelta = new Vector2(40f, 10f);
-        rect.localScale = Vector3.one * 0.1f;
+        for (int i = 0; i < displaySlots.Count; i++)
+        {
+            if (displaySlots[i].IsEmpty)
+                return displaySlots[i];
+        }
 
-        counterText = counterObject.GetComponent<TextMeshPro>();
-        counterText.alignment = TextAlignmentOptions.Center;
-        counterText.fontSize = 36f;
-        counterText.fontStyle = FontStyles.Bold;
-        counterText.color = Color.white;
-        counterText.enableAutoSizing = false;
-
-        MeshRenderer textRenderer = counterObject.GetComponent<MeshRenderer>();
-        if (textRenderer != null)
-            textRenderer.sortingOrder = short.MaxValue;
+        return null;
     }
 
-    private void RefreshCounter()
+    private void RemoveChipFromDisplay(Chip chip)
     {
-        if (counterText != null)
-            counterText.text = StoredCount.ToString();
+        for (int i = 0; i < displaySlots.Count; i++)
+        {
+            if (displaySlots[i].Remove(chip))
+                return;
+        }
+    }
+
+    private void CreateBufferDisplay()
+    {
+        displayTexture = new Texture2D(
+            1,
+            1,
+            TextureFormat.RGBA32,
+            false)
+        {
+            name = "ChipBufferDisplayTexture",
+            filterMode = FilterMode.Point
+        };
+        displayTexture.SetPixel(0, 0, Color.white);
+        displayTexture.Apply();
+
+        displaySprite = Sprite.Create(
+            displayTexture,
+            new Rect(0f, 0f, 1f, 1f),
+            new Vector2(0.5f, 0.5f),
+            1f);
+        displaySprite.name = "ChipBufferDisplaySprite";
+
+        displayContainer = new GameObject("ChipBufferDisplay");
+        Camera camera = Camera.main;
+        Vector3 machineMidpoint =
+            (transform.position + fillMachine.position) * 0.5f;
+        float screenWidth = camera != null && camera.orthographic
+            ? camera.orthographicSize * 2f * camera.aspect
+            : Mathf.Abs(transform.lossyScale.x);
+        float displayCenterX = camera != null
+            ? camera.transform.position.x
+            : machineMidpoint.x;
+
+        displayContainer.transform.position = new Vector3(
+            displayCenterX + displayPositionOffset.x,
+            machineMidpoint.y + displayPositionOffset.y,
+            0f);
+
+        float usableWidth = Mathf.Max(
+            0.1f,
+            screenWidth - displayHorizontalMargin * 2f);
+        float totalSpacing =
+            (DisplaySlotCount - 1) * displayCellSpacing;
+        float cellWidth = Mathf.Max(
+            0.05f,
+            (usableWidth - totalSpacing) / DisplaySlotCount);
+
+        GameObject backgroundObject = new GameObject("Background");
+        backgroundObject.transform.SetParent(
+            displayContainer.transform,
+            false);
+        backgroundObject.transform.localScale = new Vector3(
+            screenWidth,
+            displayCellHeight + displayCellSpacing * 2f,
+            1f);
+
+        SpriteRenderer backgroundRenderer =
+            backgroundObject.AddComponent<SpriteRenderer>();
+        backgroundRenderer.sprite = displaySprite;
+        backgroundRenderer.color = new Color(0.12f, 0.12f, 0.12f, 1f);
+        backgroundRenderer.sortingOrder = 1000;
+
+        float firstX = -(usableWidth - cellWidth) * 0.5f;
+        for (int i = 0; i < DisplaySlotCount; i++)
+        {
+            GameObject cellObject = new GameObject($"BufferCell_{i + 1}");
+            cellObject.transform.SetParent(displayContainer.transform, false);
+            cellObject.transform.localPosition = new Vector3(
+                firstX + i * (cellWidth + displayCellSpacing),
+                0f,
+                0f);
+            cellObject.transform.localScale = new Vector3(
+                cellWidth,
+                displayCellHeight,
+                1f);
+
+            SpriteRenderer cellRenderer =
+                cellObject.AddComponent<SpriteRenderer>();
+            cellRenderer.sprite = displaySprite;
+            cellRenderer.color = Color.white;
+            cellRenderer.sortingOrder = 1001;
+
+            GameObject textObject = new GameObject(
+                "Count",
+                typeof(RectTransform),
+                typeof(TextMeshPro));
+            textObject.transform.SetParent(cellObject.transform, false);
+
+            RectTransform rect = textObject.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(1f, 1f);
+            rect.localScale = new Vector3(
+                1f / cellWidth,
+                1f / displayCellHeight,
+                1f);
+
+            TMP_Text countText = textObject.GetComponent<TextMeshPro>();
+            countText.alignment = TextAlignmentOptions.Center;
+            countText.fontSize = displayCountFontSize;
+            countText.fontStyle = FontStyles.Bold;
+            countText.enableAutoSizing = false;
+            countText.color = Color.white;
+            countText.outlineColor = Color.black;
+            countText.outlineWidth = displayCountOutlineWidth;
+
+            MeshRenderer textRenderer =
+                textObject.GetComponent<MeshRenderer>();
+            if (textRenderer != null)
+                textRenderer.sortingOrder = 1002;
+
+            displaySlots.Add(new BufferDisplaySlot(
+                cellRenderer,
+                countText));
+        }
+    }
+
+    private void RefreshBufferDisplay()
+    {
+        for (int i = 0; i < displaySlots.Count; i++)
+            displaySlots[i].Refresh();
     }
 
     private void OnDestroy()
     {
-        if (counterText != null)
-            Destroy(counterText.gameObject);
+        if (displayContainer != null)
+            Destroy(displayContainer);
+
+        if (displaySprite != null)
+            Destroy(displaySprite);
+
+        if (displayTexture != null)
+            Destroy(displayTexture);
 
         if (trayContainer != null)
             Destroy(trayContainer);
+    }
+
+    private sealed class BufferDisplaySlot
+    {
+        private readonly List<Chip> chips = new();
+        private readonly SpriteRenderer renderer;
+        private readonly TMP_Text countText;
+        private ChipColor color;
+
+        public bool IsEmpty => chips.Count == 0;
+
+        public BufferDisplaySlot(
+            SpriteRenderer renderer,
+            TMP_Text countText)
+        {
+            this.renderer = renderer;
+            this.countText = countText;
+        }
+
+        public bool CanAccept(ChipColor chipColor)
+        {
+            return !IsEmpty
+                && color == chipColor
+                && chips.Count < DisplaySlotCapacity;
+        }
+
+        public void Add(Chip chip)
+        {
+            if (IsEmpty)
+                color = chip.ColorType;
+
+            chips.Add(chip);
+        }
+
+        public bool Remove(Chip chip)
+        {
+            return chips.Remove(chip);
+        }
+
+        public void Refresh()
+        {
+            if (IsEmpty)
+            {
+                renderer.color = Color.white;
+                countText.text = string.Empty;
+                return;
+            }
+
+            Color displayColor = Chip.GetDisplayColor(color);
+            renderer.color = displayColor;
+            countText.text = chips.Count.ToString();
+            countText.color = Color.white;
+        }
     }
 
     private sealed class TrayInfo

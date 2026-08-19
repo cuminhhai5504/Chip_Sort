@@ -4,6 +4,9 @@ public class Chip : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer chipRenderer;
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField, Min(0f)] private float releaseSpeedMin = 2f;
+    [SerializeField, Min(0f)] private float releaseSpeedMax = 4f;
+    [SerializeField, Min(0f)] private float releaseSpread = 0.8f;
     private SpriteRenderer trayShadowRenderer;
     private Vector3 originalScale;
     public ChipColor ColorType { get; private set; }
@@ -45,12 +48,29 @@ public class Chip : MonoBehaviour
             trayShadowRenderer.sortingOrder = order - 1;
     }
     #region Add Core Mechanic
-    public void Release()
+    public void Release(
+        Vector2 releaseDirection,
+        Vector3 startPosition)
     {
-        gameObject.layer =
-            LayerMask.NameToLayer("ReleasedChip");
+        Vector2 direction = releaseDirection.sqrMagnitude > 0.0001f
+            ? releaseDirection.normalized
+            : Vector2.up;
+        Vector2 perpendicular = new Vector2(-direction.y, direction.x);
+        float minSpeed = Mathf.Min(releaseSpeedMin, releaseSpeedMax);
+        float maxSpeed = Mathf.Max(releaseSpeedMin, releaseSpeedMax);
+        int releasedLayer = LayerMask.NameToLayer("ReleasedChip");
+
+        if (releasedLayer >= 0)
+        {
+            gameObject.layer = releasedLayer;
+            Physics2D.IgnoreLayerCollision(
+                releasedLayer,
+                releasedLayer,
+                false);
+        }
 
         transform.SetParent(null);
+        transform.position = startPosition;
 
         rb.simulated = true;
         rb.bodyType = RigidbodyType2D.Dynamic;
@@ -60,9 +80,9 @@ public class Chip : MonoBehaviour
         IsInsideMachine = false;
 
         rb.linearVelocity =
-            new Vector2(
-                Random.Range(-1f, 1f),
-                Random.Range(2f, 4f));
+            direction * Random.Range(minSpeed, maxSpeed)
+            + perpendicular * Random.Range(-releaseSpread, releaseSpread);
+        rb.angularVelocity = Random.Range(-180f, 180f);
     }
 
     public bool TryCollect()

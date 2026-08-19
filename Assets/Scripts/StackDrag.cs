@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class StackDrag : MonoBehaviour
 {
+    private static StackDrag activeDrag;
+
     private Camera cam;
 
     private Vector3 startPosition;
@@ -15,22 +17,25 @@ public class StackDrag : MonoBehaviour
         cam = Camera.main;
         stack = GetComponent<ChipStack>();
     }
-    private void OnMouseDown()
+    private void BeginDrag()
     {
-        if (Board.Instance == null || !Board.Instance.IsPlaying)
+        if (activeDrag != null
+            || Board.Instance == null
+            || !Board.Instance.IsPlaying)
             return;
 
         startPosition = transform.position;
-
         dragging = true;
+        activeDrag = this;
     }
 
-    private void OnMouseUp()
+    private void EndDrag()
     {
         if (!dragging)
             return;
 
         dragging = false;
+        activeDrag = null;
 
         TryDrop();
     }
@@ -38,7 +43,18 @@ public class StackDrag : MonoBehaviour
     private void Update()
     {
         if (!dragging)
+        {
+            if (Input.GetMouseButtonDown(0) && IsPointerOverStack())
+                BeginDrag();
+
             return;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            EndDrag();
+            return;
+        }
 
         Vector3 mouse =
             cam.ScreenToWorldPoint(Input.mousePosition);
@@ -48,6 +64,31 @@ public class StackDrag : MonoBehaviour
         transform.position = mouse;
 
         stack.RefreshSortingOrder();
+    }
+
+    private bool IsPointerOverStack()
+    {
+        if (cam == null)
+            return false;
+
+        Vector3 pointerPosition =
+            cam.ScreenToWorldPoint(Input.mousePosition);
+
+        // Query only this stack's layer. Released chips keep their colliders for
+        // physics and machine collection, but can no longer consume drag input.
+        int stackLayerMask = 1 << gameObject.layer;
+        Collider2D hit = Physics2D.OverlapPoint(
+            pointerPosition,
+            stackLayerMask);
+
+        return hit != null
+            && hit.GetComponentInParent<StackDrag>() == this;
+    }
+
+    private void OnDisable()
+    {
+        if (activeDrag == this)
+            activeDrag = null;
     }
 
     private void TryDrop()
@@ -83,8 +124,11 @@ public class StackDrag : MonoBehaviour
             targetCell.CurrentStack;
 
         Cell sourceCell = stack.CurrentCell;
+        Vector2 mergeDirection =
+            targetCell.transform.position
+            - sourceCell.transform.position;
 
-        StackMerger.Merge(stack, targetStack);
+        StackMerger.Merge(stack, targetStack, mergeDirection);
 
         sourceCell.ClearStack();
         Board.Instance.CheckLoseCondition();

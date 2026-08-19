@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChipStack
   chipOffset: 0.15
+  burstOriginRadius: 0.08
+  burstAngleJitter: 10
 --- !u!114 &8920971035319992374
 MonoBehaviour:
   m_ObjectHideFlags: 0

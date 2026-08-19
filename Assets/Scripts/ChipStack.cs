@@ -4,6 +4,8 @@ using UnityEngine;
 public class ChipStack : MonoBehaviour
 {
     [SerializeField] private float chipOffset = 0.15f;
+    [SerializeField, Min(0f)] private float burstOriginRadius = 0.08f;
+    [SerializeField, Range(0f, 45f)] private float burstAngleJitter = 10f;
 
     private readonly List<Chip> chips = new();
 
@@ -61,11 +63,38 @@ public class ChipStack : MonoBehaviour
     {
         return chips.Count >= 5;
     }
-    public void BreakStack()
+    public void BreakStack(Vector2 releaseDirection)
     {
-        foreach (Chip chip in chips)
+        if (chips.Count == 0)
+            return;
+
+        Vector3 burstCenter = Vector3.zero;
+        for (int i = 0; i < chips.Count; i++)
+            burstCenter += chips[i].transform.position;
+
+        burstCenter /= chips.Count;
+
+        Vector2 baseDirection = releaseDirection.sqrMagnitude > 0.0001f
+            ? releaseDirection.normalized
+            : Vector2.up;
+        float baseAngle = Mathf.Atan2(
+            baseDirection.y,
+            baseDirection.x) * Mathf.Rad2Deg;
+        float angleStep = 360f / chips.Count;
+
+        for (int i = 0; i < chips.Count; i++)
         {
-            chip.Release();
+            float angle = baseAngle
+                + angleStep * i
+                + Random.Range(-burstAngleJitter, burstAngleJitter);
+            float angleInRadians = angle * Mathf.Deg2Rad;
+            Vector2 burstDirection = new Vector2(
+                Mathf.Cos(angleInRadians),
+                Mathf.Sin(angleInRadians));
+            Vector3 startPosition = burstCenter
+                + (Vector3)(burstDirection * burstOriginRadius);
+
+            chips[i].Release(burstDirection, startPosition);
         }
 
         chips.Clear();
