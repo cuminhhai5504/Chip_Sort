@@ -106,5 +106,21 @@ public class ChipStack : MonoBehaviour
 
         Destroy(gameObject);
     }
+
+    public void DropStack()
+    {
+        for (int i = 0; i < chips.Count; i++)
+        {
+            Chip chip = chips[i];
+            chip.Release(Vector2.down, chip.transform.position);
+        }
+
+        chips.Clear();
+
+        if (CurrentCell != null)
+            CurrentCell.ClearStack();
+
+        Destroy(gameObject);
+    }
     #endregion
 }

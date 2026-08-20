@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class StackDrag : MonoBehaviour
 {
@@ -44,8 +45,19 @@ public class StackDrag : MonoBehaviour
     {
         if (!dragging)
         {
-            if (Input.GetMouseButtonDown(0) && IsPointerOverStack())
+            if (Input.GetMouseButtonDown(0)
+                && (EventSystem.current == null
+                    || !EventSystem.current.IsPointerOverGameObject())
+                && IsPointerOverStack())
+            {
+                if (Board.Instance != null && Board.Instance.HasSelectedAbility)
+                {
+                    Board.Instance.TryUseSelectedAbility(stack);
+                    return;
+                }
+
                 BeginDrag();
+            }
 
             return;
         }
@@ -120,6 +132,13 @@ public class StackDrag : MonoBehaviour
     
     private void MergeIntoCell(Cell targetCell)
     {
+        if (Board.Instance.IsBoardFull)
+        {
+            Board.Instance.ShowBoardFull(targetCell.transform.position);
+            ReturnToStart();
+            return;
+        }
+
         ChipStack targetStack =
             targetCell.CurrentStack;
 

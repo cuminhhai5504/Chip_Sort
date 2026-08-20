@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class ChipMachineSystem : MonoBehaviour
@@ -39,6 +40,17 @@ public class ChipMachineSystem : MonoBehaviour
     [SerializeField] private float outputOffset = 0.2f;
     [SerializeField, Min(0.05f)] private float fillMoveDuration = 0.25f;
 
+    [Header("Button 2 respawn")]
+    [SerializeField, Min(0f)] private float respawnTopMargin = 0.6f;
+    [SerializeField, Min(0f)] private float respawnHorizontalSpacing = 0.35f;
+    [SerializeField, Min(0f)] private float respawnFallSpeed = 0.5f;
+
+    [Header("Button 3 scatter")]
+    [SerializeField, Min(0f)] private float scatterHorizontalSpeed = 5f;
+    [SerializeField, Min(0f)] private float scatterUpwardSpeedMin = 14f;
+    [SerializeField, Min(0f)] private float scatterUpwardSpeedMax = 18f;
+    [SerializeField, Min(0f)] private float scatterAngularSpeed = 240f;
+
     [Header("Tray layout")]
     [SerializeField] private float trayHeight = 1.25f;
     [SerializeField, Min(1f)] private float trayWidthMultiplier = 1.5f;
@@ -46,6 +58,11 @@ public class ChipMachineSystem : MonoBehaviour
     [SerializeField] private float trayBottomMargin = 0.05f;
     [SerializeField] private float trayChipSpacing = 0.15f;
     [SerializeField] private float trayChipVerticalOffset = 0.1f;
+
+    [Header("Next tray indicator")]
+    [SerializeField, Min(0.05f)] private float nextTrayIndicatorDiameter = 0.2f;
+    [SerializeField, Min(0f)] private float nextTrayIndicatorGap = 0.04f;
+    [SerializeField, Min(0f)] private float nextTrayIndicatorOutline = 0.025f;
 
     [Header("Hidden trays")]
     [SerializeField, Min(0.05f)] private float trayPushUpDuration = 0.3f;
@@ -61,6 +78,8 @@ public class ChipMachineSystem : MonoBehaviour
     private GameObject displayContainer;
     private Texture2D displayTexture;
     private Sprite displaySprite;
+    private Texture2D nextTrayIndicatorTexture;
+    private Sprite nextTrayIndicatorSprite;
     private BoxCollider2D collectionGate;
     private Coroutine dispenseRoutine;
     private bool initialized;
@@ -68,6 +87,36 @@ public class ChipMachineSystem : MonoBehaviour
 
     public int StoredCount => storedChips.Count;
     public int MaxWaitingChips => maxWaitingChips;
+
+    public void ScatterReleasedChips()
+    {
+        Chip[] chips = FindObjectsByType<Chip>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+        float minUpwardSpeed = Mathf.Min(
+            scatterUpwardSpeedMin,
+            scatterUpwardSpeedMax);
+        float maxUpwardSpeed = Mathf.Max(
+            scatterUpwardSpeedMin,
+            scatterUpwardSpeedMax);
+
+        for (int i = 0; i < chips.Length; i++)
+        {
+            Chip chip = chips[i];
+            if (!chip.IsReleased || chip.IsInsideMachine)
+                continue;
+
+            Vector2 velocity = new Vector2(
+                Random.Range(
+                    -scatterHorizontalSpeed,
+                    scatterHorizontalSpeed),
+                Random.Range(minUpwardSpeed, maxUpwardSpeed));
+            chip.Scatter(
+                velocity,
+                Random.Range(-scatterAngularSpeed, scatterAngularSpeed));
+            waitingChips.Remove(chip);
+        }
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -102,6 +151,11 @@ public class ChipMachineSystem : MonoBehaviour
         }
 
         Initialize(gameObject, fillObject);
+    }
+
+    private void Update()
+    {
+        HandleClearBufferInput();
     }
 
     private void Initialize(GameObject collectObject, GameObject fillObject)
@@ -307,7 +361,9 @@ public class ChipMachineSystem : MonoBehaviour
                 fillMachine.position.y - outputOffset,
                 0f);
 
-            Vector3 slotPosition = tray.GetSlotPosition(slotIndex, trayChipSpacing);
+            Vector3 slotPosition = tray.GetSlotPosition(
+                slotIndex,
+                trayChipSpacing);
             slotPosition += Vector3.up * trayChipVerticalOffset;
             chip.PlaceInTray(outputPosition, 100 + slotIndex * 2);
 
@@ -521,6 +577,8 @@ public class ChipMachineSystem : MonoBehaviour
                     trayObject.SetActive(false);
             }
         }
+
+        CreateNextTrayIndicators();
     }
 
     private bool TryLoadTrayColors(
@@ -655,6 +713,103 @@ public class ChipMachineSystem : MonoBehaviour
         return trayObject;
     }
 
+    private void CreateNextTrayIndicators()
+    {
+        nextTrayIndicatorTexture = CreateCircleTexture(64);
+        nextTrayIndicatorSprite = Sprite.Create(
+            nextTrayIndicatorTexture,
+            new Rect(
+                0f,
+                0f,
+                nextTrayIndicatorTexture.width,
+                nextTrayIndicatorTexture.height),
+            new Vector2(0.5f, 0.5f),
+            nextTrayIndicatorTexture.width);
+        nextTrayIndicatorSprite.name = "NextTrayIndicatorSprite";
+
+        for (int i = 0; i < trayColumns.Count; i++)
+        {
+            TrayColumn column = trayColumns[i];
+            TrayInfo activeTray = column.ActiveTray;
+            if (activeTray == null)
+                continue;
+
+            SpriteRenderer trayRenderer =
+                activeTray.TrayObject.GetComponent<SpriteRenderer>();
+            if (trayRenderer == null)
+                continue;
+
+            float radius = nextTrayIndicatorDiameter * 0.5f;
+            Vector3 position = new Vector3(
+                trayRenderer.bounds.min.x - nextTrayIndicatorGap - radius + 0.2f,
+                trayRenderer.bounds.min.y + radius + 0.05f,
+                0f);
+
+            GameObject outlineObject = new GameObject(
+                $"NextTrayIndicator_{i + 1}");
+            outlineObject.transform.SetParent(trayContainer.transform, false);
+            outlineObject.transform.position = position;
+            outlineObject.transform.localScale = Vector3.one
+                * (nextTrayIndicatorDiameter
+                    + nextTrayIndicatorOutline * 2f);
+
+            SpriteRenderer outlineRenderer =
+                outlineObject.AddComponent<SpriteRenderer>();
+            outlineRenderer.sprite = nextTrayIndicatorSprite;
+            outlineRenderer.color = new Color(0.12f, 0.12f, 0.12f, 1f);
+            outlineRenderer.sortingOrder = 200;
+
+            GameObject colorObject = new GameObject("Color");
+            colorObject.transform.SetParent(outlineObject.transform, false);
+            float innerScale = nextTrayIndicatorDiameter
+                / (nextTrayIndicatorDiameter
+                    + nextTrayIndicatorOutline * 2f);
+            colorObject.transform.localScale = Vector3.one * innerScale;
+
+            SpriteRenderer colorRenderer =
+                colorObject.AddComponent<SpriteRenderer>();
+            colorRenderer.sprite = nextTrayIndicatorSprite;
+            colorRenderer.sortingOrder = 201;
+
+            column.SetNextTrayIndicator(colorRenderer);
+        }
+    }
+
+    private static Texture2D CreateCircleTexture(int size)
+    {
+        Texture2D texture = new Texture2D(
+            size,
+            size,
+            TextureFormat.RGBA32,
+            false)
+        {
+            name = "NextTrayIndicatorTexture",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Color[] pixels = new Color[size * size];
+        float center = (size - 1) * 0.5f;
+        float radius = size * 0.5f - 1f;
+        float edgeStart = radius - 1f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Vector2.Distance(
+                    new Vector2(x, y),
+                    new Vector2(center, center));
+                float alpha = 1f - Mathf.Clamp01(distance - edgeStart);
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return texture;
+    }
+
     private BufferDisplaySlot FindDisplaySlot(ChipColor color)
     {
         for (int i = 0; i < displaySlots.Count; i++)
@@ -763,6 +918,15 @@ public class ChipMachineSystem : MonoBehaviour
             cellRenderer.color = Color.white;
             cellRenderer.sortingOrder = 1001;
 
+            GameObject fillObject = new GameObject("Fill");
+            fillObject.transform.SetParent(cellObject.transform, false);
+
+            SpriteRenderer fillRenderer =
+                fillObject.AddComponent<SpriteRenderer>();
+            fillRenderer.sprite = displaySprite;
+            fillRenderer.sortingOrder = 1002;
+            fillRenderer.enabled = false;
+
             GameObject textObject = new GameObject(
                 "Count",
                 typeof(RectTransform),
@@ -788,10 +952,11 @@ public class ChipMachineSystem : MonoBehaviour
             MeshRenderer textRenderer =
                 textObject.GetComponent<MeshRenderer>();
             if (textRenderer != null)
-                textRenderer.sortingOrder = 1002;
+                textRenderer.sortingOrder = 1003;
 
             displaySlots.Add(new BufferDisplaySlot(
                 cellRenderer,
+                fillRenderer,
                 countText));
         }
     }
@@ -800,6 +965,74 @@ public class ChipMachineSystem : MonoBehaviour
     {
         for (int i = 0; i < displaySlots.Count; i++)
             displaySlots[i].Refresh();
+    }
+
+    private void HandleClearBufferInput()
+    {
+        if (!Input.GetMouseButtonDown(0)
+            || Board.Instance == null
+            || !Board.Instance.IsAbilitySelected(2)
+            || (EventSystem.current != null
+                && EventSystem.current.IsPointerOverGameObject()))
+        {
+            return;
+        }
+
+        Camera camera = Camera.main;
+        if (camera == null)
+            return;
+
+        Vector3 pointerPosition = camera.ScreenToWorldPoint(Input.mousePosition);
+        pointerPosition.z = 0f;
+
+        for (int i = 0; i < displaySlots.Count; i++)
+        {
+            BufferDisplaySlot slot = displaySlots[i];
+            if (!slot.Contains(pointerPosition) || slot.IsEmpty)
+                continue;
+
+            RespawnBufferChips(slot.TakeAllChips(), slot.CenterX);
+            RefreshBufferDisplay();
+            RefreshCollectionGate();
+            RetryWaitingChips();
+            Board.Instance.TryConsumeSelectedAbility(2);
+            return;
+        }
+    }
+
+    private void RespawnBufferChips(List<Chip> chips, float centerX)
+    {
+        Camera camera = Camera.main;
+        if (camera == null)
+            return;
+
+        float screenHalfWidth = camera.orthographic
+            ? camera.orthographicSize * camera.aspect
+            : 2.5f;
+        float spawnY = camera.transform.position.y
+            + camera.orthographicSize
+            - respawnTopMargin;
+        float totalWidth = (chips.Count - 1) * respawnHorizontalSpacing;
+
+        for (int i = 0; i < chips.Count; i++)
+        {
+            Chip chip = chips[i];
+            if (chip == null)
+                continue;
+
+            storedChips.Remove(chip);
+            float spawnX = centerX
+                - totalWidth * 0.5f
+                + i * respawnHorizontalSpacing;
+            spawnX = Mathf.Clamp(
+                spawnX,
+                camera.transform.position.x - screenHalfWidth + 0.5f,
+                camera.transform.position.x + screenHalfWidth - 0.5f);
+
+            chip.Dispense(
+                new Vector3(spawnX, spawnY, 0f),
+                Vector2.down * respawnFallSpeed);
+        }
     }
 
     private void OnDestroy()
@@ -813,6 +1046,12 @@ public class ChipMachineSystem : MonoBehaviour
         if (displayTexture != null)
             Destroy(displayTexture);
 
+        if (nextTrayIndicatorSprite != null)
+            Destroy(nextTrayIndicatorSprite);
+
+        if (nextTrayIndicatorTexture != null)
+            Destroy(nextTrayIndicatorTexture);
+
         if (trayContainer != null)
             Destroy(trayContainer);
     }
@@ -820,17 +1059,21 @@ public class ChipMachineSystem : MonoBehaviour
     private sealed class BufferDisplaySlot
     {
         private readonly List<Chip> chips = new();
-        private readonly SpriteRenderer renderer;
+        private readonly SpriteRenderer cellRenderer;
+        private readonly SpriteRenderer fillRenderer;
         private readonly TMP_Text countText;
         private ChipColor color;
 
         public bool IsEmpty => chips.Count == 0;
+        public float CenterX => cellRenderer.bounds.center.x;
 
         public BufferDisplaySlot(
-            SpriteRenderer renderer,
+            SpriteRenderer cellRenderer,
+            SpriteRenderer fillRenderer,
             TMP_Text countText)
         {
-            this.renderer = renderer;
+            this.cellRenderer = cellRenderer;
+            this.fillRenderer = fillRenderer;
             this.countText = countText;
         }
 
@@ -854,19 +1097,50 @@ public class ChipMachineSystem : MonoBehaviour
             return chips.Remove(chip);
         }
 
+        public bool Contains(Vector3 worldPosition)
+        {
+            return cellRenderer.bounds.Contains(worldPosition);
+        }
+
+        public List<Chip> TakeAllChips()
+        {
+            List<Chip> removedChips = new List<Chip>(chips);
+            chips.Clear();
+            return removedChips;
+        }
+
         public void Refresh()
         {
             if (IsEmpty)
             {
-                renderer.color = Color.white;
+                fillRenderer.enabled = false;
                 countText.text = string.Empty;
                 return;
             }
 
             Color displayColor = Chip.GetDisplayColor(color);
-            renderer.color = displayColor;
+            float fillAmount = Mathf.Clamp01(
+                chips.Count / (float)DisplaySlotCapacity);
+
+            fillRenderer.enabled = true;
+            fillRenderer.color = displayColor;
+            fillRenderer.transform.localScale = new Vector3(
+                1f,
+                fillAmount,
+                1f);
+            fillRenderer.transform.localPosition = new Vector3(
+                0f,
+                (fillAmount - 1f) * 0.5f,
+                0f);
+
             countText.text = chips.Count.ToString();
-            countText.color = Color.white;
+            bool numberIsOverWhiteArea = chips.Count <= 2;
+            countText.color = numberIsOverWhiteArea
+                ? Color.black
+                : Color.white;
+            countText.outlineColor = numberIsOverWhiteArea
+                ? Color.white
+                : Color.black;
         }
     }
 
@@ -948,6 +1222,7 @@ public class ChipMachineSystem : MonoBehaviour
     {
         private readonly List<TrayInfo> trays = new();
         private readonly float hiddenTraySpacing;
+        private SpriteRenderer nextTrayIndicator;
 
         public Vector3 ActivePosition { get; }
         public TrayInfo ActiveTray => trays.Count > 0 ? trays[0] : null;
@@ -963,6 +1238,12 @@ public class ChipMachineSystem : MonoBehaviour
             trays.Add(tray);
         }
 
+        public void SetNextTrayIndicator(SpriteRenderer indicator)
+        {
+            nextTrayIndicator = indicator;
+            RefreshNextTrayIndicator();
+        }
+
         public void RemoveActiveTray()
         {
             if (trays.Count == 0)
@@ -971,6 +1252,17 @@ public class ChipMachineSystem : MonoBehaviour
             TrayInfo completedTray = trays[0];
             trays.RemoveAt(0);
             completedTray.DestroyContents();
+            RefreshNextTrayIndicator();
+        }
+
+        private void RefreshNextTrayIndicator()
+        {
+            if (nextTrayIndicator == null)
+                return;
+
+            nextTrayIndicator.color = trays.Count > 1
+                ? Chip.GetDisplayColor(trays[1].Color)
+                : Color.white;
         }
 
         public void MoveHiddenTraysOneLevelUp()

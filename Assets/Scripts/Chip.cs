@@ -116,6 +116,19 @@ public class Chip : MonoBehaviour
         IsInsideMachine = false;
     }
 
+    public void Scatter(Vector2 velocity, float angularVelocity)
+    {
+        if (!IsReleased || IsInsideMachine)
+            return;
+
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.simulated = true;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        rb.linearVelocity = velocity;
+        rb.angularVelocity = angularVelocity;
+        rb.WakeUp();
+    }
+
     public void PlaceInTray(Vector3 position, int sortingOrder)
     {
         transform.SetParent(null);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -69,9 +70,9 @@ public class BoardGenerator : MonoBehaviour
         {
             Debug.LogError(
                 $"Missing stack CSV at Resources/{resourcePath}.csv. " +
-                $"Use {BoardColumnCount} stacks separated by ';' per row " +
-                "and write each stack bottom-to-top, for example " +
-                "1,3,2,5;2,4;7;1,6,3;5,2,4.",
+                $"Use {BoardColumnCount} quoted cells per row and write " +
+                "each stack bottom-to-top, for example " +
+                "\"1,3,2,5\",\"2,4\",\"7\",\"1,6,3\",\"5,2,4\".",
                 this);
             return false;
         }
@@ -99,13 +100,21 @@ public class BoardGenerator : MonoBehaviour
                 return false;
             }
 
-            string[] cells = rowText.Split(';');
-            if (cells.Length > BoardColumnCount)
+            if (!TryParseCsvCells(rowText, out List<string> cells))
+            {
+                Debug.LogError(
+                    $"Invalid quotes in {resourcePath}.csv row " +
+                    $"{boardRow + 1}.",
+                    this);
+                return false;
+            }
+
+            if (cells.Count != BoardColumnCount)
             {
                 Debug.LogError(
                     $"{resourcePath}.csv row {boardRow + 1} has " +
-                    $"{cells.Length} columns. Only {BoardColumnCount} " +
-                    "columns are allowed.",
+                    $"{cells.Count} columns. Exactly {BoardColumnCount} " +
+                    "columns are required.",
                     this);
                 return false;
             }
@@ -116,9 +125,7 @@ public class BoardGenerator : MonoBehaviour
                 if (cellIndex >= board.Cells.Count)
                     break;
 
-                string stackText = column < cells.Length
-                    ? cells[column].Trim()
-                    : string.Empty;
+                string stackText = cells[column].Trim();
                 if (string.IsNullOrEmpty(stackText))
                 {
                     Debug.LogError(
@@ -175,6 +182,51 @@ public class BoardGenerator : MonoBehaviour
             return false;
         }
 
+        return true;
+    }
+
+    private static bool TryParseCsvCells(
+        string rowText,
+        out List<string> cells)
+    {
+        cells = new List<string>();
+        StringBuilder cell = new StringBuilder();
+        bool insideQuotes = false;
+
+        for (int i = 0; i < rowText.Length; i++)
+        {
+            char character = rowText[i];
+            if (character == '"')
+            {
+                if (insideQuotes
+                    && i + 1 < rowText.Length
+                    && rowText[i + 1] == '"')
+                {
+                    cell.Append('"');
+                    i++;
+                }
+                else
+                {
+                    insideQuotes = !insideQuotes;
+                }
+
+                continue;
+            }
+
+            if (character == ',' && !insideQuotes)
+            {
+                cells.Add(cell.ToString());
+                cell.Clear();
+                continue;
+            }
+
+            cell.Append(character);
+        }
+
+        if (insideQuotes)
+            return false;
+
+        cells.Add(cell.ToString());
         return true;
     }
 
